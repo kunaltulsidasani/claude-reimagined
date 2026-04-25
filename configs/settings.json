@@ -1,0 +1,33 @@
+{
+  "skillListingMaxDescChars": 300,
+  "skillListingBudgetFraction": 0.005,
+  "env": {
+    "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "80"
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"__HOME__/.claude/hooks/subagent-model-router.sh\"",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash \"__HOME__/.claude/statusline.sh\""
+  },
+  "spinnerTipsEnabled": false,
+  "effortLevel": "medium",
+  "promptSuggestionEnabled": false,
+  "tui": "fullscreen",
+  "prefersReducedMotion": true,
+  "showThinkingSummaries": false,
+  "autoScrollEnabled": false
+}

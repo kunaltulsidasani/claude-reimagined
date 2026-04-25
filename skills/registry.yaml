@@ -1,0 +1,302 @@
+# Claude Code Skills Registry
+# Format: each entry maps a skill-id to its GitHub source.
+# install_skills.sh reads this and sparse-clones each repo to fetch only needed paths.
+#
+# Fields:
+#   id:          install target name → ~/.claude/skills/<id>/
+#   category:    grouping label
+#   repo:        GitHub owner/name
+#   path:        path inside the repo containing SKILL.md (and any supporting files)
+#   description: one-liner
+
+skills:
+
+  # ── Languages ──────────────────────────────────────────────────────────────
+
+  - id: python-pro
+    category: languages
+    repo: Jeffallan/claude-skills
+    path: skills/python-pro
+    description: Senior Python development — idiomatic patterns, stdlib mastery, tooling
+
+  - id: typescript-pro
+    category: languages
+    repo: Jeffallan/claude-skills
+    path: skills/typescript-pro
+    description: TypeScript 5.x strict-mode, advanced types, toolchain
+
+  - id: golang-pro
+    category: languages
+    repo: Jeffallan/claude-skills
+    path: skills/golang-pro
+    description: Go — idiomatic concurrency, modules, performance
+
+  - id: rust-pro
+    category: languages
+    repo: Mindrally/skills
+    path: rust-pro
+    description: Rust — ownership model, lifetimes, async/tokio
+
+  - id: java-architect
+    category: languages
+    repo: Jeffallan/claude-skills
+    path: skills/java-architect
+    description: Java — Spring Boot, enterprise patterns, JVM tuning
+
+  - id: kotlin-specialist
+    category: languages
+    repo: Jeffallan/claude-skills
+    path: skills/kotlin-specialist
+    description: Kotlin — coroutines, Android + JVM targets
+
+  - id: swift-expert
+    category: languages
+    repo: Jeffallan/claude-skills
+    path: skills/swift-expert
+    description: Swift — UIKit/SwiftUI, concurrency, Apple platform idioms
+
+  - id: csharp-developer
+    category: languages
+    repo: Jeffallan/claude-skills
+    path: skills/csharp-developer
+    description: C#/.NET — ASP.NET Core, LINQ, modern C# features
+
+  - id: cpp-pro
+    category: languages
+    repo: Jeffallan/claude-skills
+    path: skills/cpp-pro
+    description: C++ — modern C++20, memory management, STL
+
+  - id: php-pro
+    category: languages
+    repo: Jeffallan/claude-skills
+    path: skills/php-pro
+    description: PHP — modern PHP 8.x, PSR standards, Composer
+
+  - id: ruby-rails
+    category: languages
+    repo: Jeffallan/claude-skills
+    path: skills/rails-expert
+    description: Ruby on Rails — conventions, ActiveRecord, Hotwire
+
+  - id: elixir-pro
+    category: languages
+    repo: sickn33/antigravity-awesome-skills
+    path: skills/elixir-pro
+    description: Elixir — OTP, Phoenix, fault-tolerant systems
+
+  - id: react
+    category: languages
+    repo: Jeffallan/claude-skills
+    path: skills/react
+    description: React — hooks, state management, performance patterns
+
+  - id: vue-expert
+    category: languages
+    repo: Jeffallan/claude-skills
+    path: skills/vue-expert
+    description: Vue 3 — Composition API, Pinia, Vite
+
+  - id: angular-architect
+    category: languages
+    repo: Jeffallan/claude-skills
+    path: skills/angular-architect
+    description: Angular — RxJS, signals, enterprise architecture
+
+  - id: nextjs-developer
+    category: languages
+    repo: Jeffallan/claude-skills
+    path: skills/nextjs-developer
+    description: Next.js — App Router, RSC, edge deployment
+
+  - id: nestjs-expert
+    category: languages
+    repo: Jeffallan/claude-skills
+    path: skills/nestjs-expert
+    description: NestJS — DI, guards, microservices, OpenAPI
+
+  - id: django-expert
+    category: languages
+    repo: Jeffallan/claude-skills
+    path: skills/django-expert
+    description: Django — ORM, DRF, async views, deployment
+
+  - id: fastapi-expert
+    category: languages
+    repo: Jeffallan/claude-skills
+    path: skills/fastapi-expert
+    description: FastAPI — Pydantic v2, async, dependency injection
+
+  - id: laravel-specialist
+    category: languages
+    repo: Jeffallan/claude-skills
+    path: skills/laravel-specialist
+    description: Laravel — Eloquent, queues, Livewire, Octane
+
+  - id: flutter-expert
+    category: languages
+    repo: sickn33/antigravity-awesome-skills
+    path: skills/flutter-expert
+    description: Flutter/Dart — widgets, state, platform channels
+
+  # ── Databases ──────────────────────────────────────────────────────────────
+
+  - id: postgres-pro
+    category: databases
+    repo: Jeffallan/claude-skills
+    path: skills/postgres-pro
+    description: PostgreSQL — query tuning, indexing, JSONB, replication
+
+  - id: redis-pro
+    category: databases
+    repo: Jeffallan/claude-skills
+    path: skills/redis-pro
+    description: Redis — data structures, pub/sub, clustering, Lua
+
+  - id: dynamodb-pro
+    category: databases
+    repo: Jeffallan/claude-skills
+    path: skills/dynamodb-pro
+    description: DynamoDB — single-table design, GSI/LSI, streams
+
+  - id: mongodb-pro
+    category: databases
+    repo: anthropics/skills
+    path: skills/mongodb
+    description: MongoDB — schema design, aggregation pipeline, Atlas
+
+  - id: database-designer
+    category: databases
+    repo: alirezarezvani/claude-skills
+    path: engineering/database-designer
+    description: Multi-DB decision skill — PostgreSQL vs MySQL vs Redis vs DynamoDB
+
+  # ── Cloud / Infrastructure ─────────────────────────────────────────────────
+
+  - id: aws-solution-architect
+    category: infrastructure
+    repo: Jeffallan/claude-skills
+    path: skills/aws-solution-architect
+    description: AWS — well-architected, CDK, cost optimization, multi-region
+
+  - id: terraform
+    category: infrastructure
+    repo: Jeffallan/claude-skills
+    path: skills/terraform
+    description: Terraform — modules, state management, provider patterns
+
+  - id: kubernetes-ops
+    category: infrastructure
+    repo: seokheejang/claude-ops-skills
+    path: skills/kubernetes-ops
+    description: Kubernetes — deployments, RBAC, HPA, troubleshooting runbooks
+
+  - id: docker
+    category: infrastructure
+    repo: Jeffallan/claude-skills
+    path: skills/docker
+    description: Docker — multi-stage builds, Compose, security hardening
+
+  - id: ci-cd
+    category: infrastructure
+    repo: levnikolaevich/claude-code-skills
+    path: skills/ci-cd
+    description: CI/CD — GitHub Actions, GitLab CI, pipeline design
+
+  # ── Testing ────────────────────────────────────────────────────────────────
+
+  - id: tdd
+    category: testing
+    repo: obra/superpowers
+    path: skills/tdd
+    description: Test-Driven Development — red/green/refactor cycle
+
+  - id: bdd
+    category: testing
+    repo: tomazwang/agent-toolkit
+    path: skills/bdd
+    description: BDD — Gherkin, Cucumber, spec-first workflow
+
+  - id: unit-tests
+    category: testing
+    repo: clear-solutions/unit-tests-skills
+    path: .
+    description: Battle-tested unit test generation principles across all languages
+
+  - id: test-automation
+    category: testing
+    repo: LambdaTest/agent-skills
+    path: skills/test-automation
+    description: Test automation — playbooks, advanced patterns, cross-browser
+
+  # ── API / Architecture ─────────────────────────────────────────────────────
+
+  - id: api-designer
+    category: api
+    repo: Jeffallan/claude-skills
+    path: skills/api-designer
+    description: REST/GraphQL/OpenAPI 3.1 — resource modeling, versioning, security
+
+  - id: openapi-docs
+    category: api
+    repo: SpillwaveSolutions/document-specialist-skill
+    path: .
+    description: OpenAPI spec generation, reverse-engineer from code, PDA docs
+
+  - id: api-security
+    category: api
+    repo: nvsecurity/nightvision-skills
+    path: skills/api-security
+    description: API security — DAST, OpenAPI extraction, vuln triage, CI integration
+
+  - id: system-design
+    category: api
+    repo: alirezarezvani/claude-skills
+    path: engineering/system-design
+    description: System design — scalability, distributed patterns, trade-off analysis
+
+  # ── Engineering Practices ──────────────────────────────────────────────────
+
+  - id: code-reviewer
+    category: engineering
+    repo: awesome-skills/code-review-skill
+    path: .
+    description: Code review — 9500+ lines of guidelines across 11 languages
+
+  - id: security-review
+    category: engineering
+    repo: Jeffallan/claude-skills
+    path: skills/security-review
+    description: Security review — OWASP, threat modeling, dependency scanning
+
+  - id: debugging
+    category: engineering
+    repo: karanb192/awesome-claude-skills
+    path: skills/debugging
+    description: Systematic debugging — root cause analysis, observability
+
+  - id: git-workflow
+    category: engineering
+    repo: karanb192/awesome-claude-skills
+    path: skills/git-workflow
+    description: Git — branching strategies, conventional commits, rebase vs merge
+
+  - id: refactoring
+    category: engineering
+    repo: alirezarezvani/claude-skills
+    path: engineering/refactoring
+    description: Refactoring — safe transforms, strangler fig, tech-debt reduction
+
+  # ── Planning / Process ─────────────────────────────────────────────────────
+
+  - id: scrum-master
+    category: process
+    repo: alirezarezvani/claude-skills
+    path: project-management/scrum-master
+    description: Scrum facilitation — sprint planning, retros, impediment removal
+
+  - id: architect-role
+    category: process
+    repo: aj-geddes/claude-code-bmad-skills
+    path: skills/architect
+    description: BMAD architect role — ADRs, tech decisions, stakeholder communication
