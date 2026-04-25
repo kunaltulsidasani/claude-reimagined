@@ -1,6 +1,6 @@
 # claude-reimagined
 
-Bootstrap system for Claude Code and its plugin ecosystem. Single command installs and wires together Claude Code, RTK, context-mode, code-review-graph, caveman, statusline, subagent router, CLAUDE.md, and a curated skill library on macOS and Linux.
+Bootstrap system for Claude Code and its plugin ecosystem. Single command installs and wires together Claude Code, RTK, context-mode, code-review-graph, caveman, statusline, subagent router, pre-compact hook, CLAUDE.md, and a curated skill library on macOS and Linux.
 
 ## Quick Start
 
@@ -17,19 +17,75 @@ Bootstrap system for Claude Code and its plugin ecosystem. Single command instal
 
 ## Components
 
-| Component | What it does | Skip flag | Verify |
-|-----------|-------------|-----------|--------|
-| deps | Installs system packages: curl, git, python3, node/npm, jq, pipx | `--skip deps` | all present in PATH |
-| claude-code | Claude Code CLI | `--skip claude-code` | `claude --version` |
-| rtk | Token-saving proxy — 60–90% context reduction on shell output | `--skip rtk` | `rtk gain` |
-| code-review-graph | Persistent codebase knowledge graph for token-efficient reviews | `--skip code-review-graph` | `code-review-graph --version` |
-| context-mode | MCP plugin that sandboxes large command output out of main context | `--skip context-mode` | `claude mcp list` |
-| caveman | Claude Code plugin — caveman communication mode hooks and UI | `--skip caveman` | `~/.claude/settings.json` |
-| statusline | Shell statusline integration showing Claude Code session state | `--skip statusline` | `~/.claude/statusline.sh` |
-| subagent-router | PreToolUse hook — routes subagents to optimal model (Haiku/Sonnet) automatically | `--skip subagent-router` | `~/.claude/hooks/` |
-| claude-md | Installs global CLAUDE.md with skill router and project conventions | `--skip claude-md` | `~/.claude/CLAUDE.md` |
-| settings | Migrates existing settings and applies Claude Code configuration | `--skip migrate-settings` | `~/.claude/settings.json` |
-| skills | Installs skills from the registry into `~/.claude/skills/` | `--skip skills` | `~/.claude/skills/` |
+| Component | What it installs | Why | Skip flag | Verify |
+|-----------|-----------------|-----|-----------|--------|
+| deps | curl, git, python3, node/npm, jq, pipx | hard dependencies for all other components | `--skip deps` | all present in PATH |
+| claude-code | Claude Code CLI | the AI coding assistant this whole system is built on | `--skip claude-code` | `claude --version` |
+| settings | `configs/settings.json` → `~/.claude/settings.json` | applies UX prefs, hooks, statusline, env vars in one shot | `--skip settings-config` | `~/.claude/settings.json` |
+| rtk | token-saving shell proxy | rewrites Bash commands through RTK, cuts context usage 60–90% on shell output | `--skip rtk` | `rtk gain` |
+| code-review-graph | persistent codebase knowledge graph | lets Claude review code with structural context instead of re-reading files every turn | `--skip code-review-graph` | `code-review-graph --version` |
+| context-mode | MCP plugin (sandboxed command output) | large command output goes to a sandbox; Claude searches it instead of flooding context | `--skip context-mode` | `claude mcp list` |
+| caveman | Claude Code plugin | installs caveman communication mode — terse, token-efficient Claude responses | `--skip caveman` | `~/.claude/settings.json` |
+| statusline | shell statusline script | shows Claude Code session state (model, tokens, cost) in the terminal statusline | `--skip statusline` | `~/.claude/statusline.sh` |
+| subagent-router | `PreToolUse` hook on `Agent` calls | routes subagents to cheapest capable model automatically; saves cost on every spawned agent | `--skip subagent-router` | `~/.claude/hooks/subagent-model-router.sh` |
+| pre-compact | `PreCompact` hook | injects project-aware instructions into Claude's compaction summarizer so mid-task state survives context resets | `--skip pre-compact` | `~/.claude/hooks/pre-compact.sh` |
+| claude-md | global `CLAUDE.md` | installs skill router instructions and project conventions Claude reads at session start | `--skip claude-md` | `~/.claude/CLAUDE.md` |
+| settings (migrate) | reads legacy `settings.sh` | carries forward any existing Claude settings rather than clobbering them | `--skip settings` | no-op if no `settings.sh` found |
+| skills | 50+ skill dirs in `~/.claude/skills/` | domain-specific prompting libraries Claude picks up automatically via the skill router | `--skip skills` | `~/.claude/skills/` |
+
+
+## Hooks
+
+### `pre-compact` — PreCompact hook
+
+**File:** `hooks/pre-compact.sh` → `~/.claude/hooks/pre-compact.sh`
+
+**When it fires:** immediately before Claude auto-compacts the context window (triggered at 80% by `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`).
+
+**What it does:** detects the project's tech stack, schema files, API directories, and git state, then writes custom instructions to stdout. Claude's compaction summarizer reads these instructions and uses them to decide what to preserve.
+
+**Why:** Claude's default compaction drops too much mid-task state. Without this hook, resuming after a compact means re-reading files and re-discovering errors. With it, the summary is guaranteed to contain: the active task and next step, exact error messages, every file touched, non-obvious decisions and their reasons, pending/blocked work, and discovered env constraints.
+
+**Stack detection:** automatically identifies JS/TS (Next.js, NestJS, React, Node), Go, Python (FastAPI, Django, Flask), Rust, Flutter, Java/Maven, Kotlin/Gradle, Ruby/Rails, Swift, C#/.NET. Adjusts preservation instructions per stack (test command, build command, schema file, API dirs).
+
+### `subagent-model-router` — PreToolUse hook on Agent
+
+**File:** `hooks/subagent-model-router.sh` → `~/.claude/hooks/subagent-model-router.sh`
+
+**When it fires:** before every `Agent` tool call.
+
+**What it does:** inspects the `subagent_type` and prompt complexity, then rewrites the tool input to pin a specific model via `updatedInput`.
+
+**Why:** spawning a Sonnet or Opus subagent for a pure file search is wasteful. This hook routes cheap work to Haiku automatically with no manual effort.
+
+| Subagent type | Routed model |
+|---------------|-------------|
+| `Explore`, `statusline-setup`, `claude-code-guide` | Haiku |
+| `general-purpose` with simple lookup prompt | Haiku |
+| `general-purpose` with complex prompt (implement/debug/design/…) | Sonnet |
+| `Plan`, `superpowers:code-reviewer` | Sonnet (floor) |
+| everything else | inherits parent model |
+
+## Settings Applied (`configs/settings.json`)
+
+The `settings` component copies `configs/settings.json` → `~/.claude/settings.json`, substituting `__HOME__` with the actual home path.
+
+| Setting | Value | Why |
+|---------|-------|-----|
+| `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` | `80` | triggers auto-compact at 80% context instead of default (95%), giving the pre-compact hook time to run before things get critical |
+| `skillListingMaxDescChars` | `300` | caps skill descriptions in the listing to 300 chars — keeps the skill router prompt lean |
+| `skillListingBudgetFraction` | `0.005` | limits skill listing to 0.5% of context budget — avoids the registry consuming meaningful tokens |
+| `spinnerTipsEnabled` | `false` | disables loading tips — noise |
+| `effortLevel` | `medium` | default thinking effort; override per-task with `/effort` |
+| `promptSuggestionEnabled` | `false` | disables inline prompt suggestions — they interrupt flow |
+| `tui` | `fullscreen` | uses the full-screen TUI instead of the inline terminal mode |
+| `prefersReducedMotion` | `true` | disables animations in the TUI |
+| `showThinkingSummaries` | `false` | hides extended thinking summaries from output — reduces noise |
+| `autoScrollEnabled` | `false` | disables auto-scroll so output stays readable mid-task |
+
+Hooks registered in settings.json:
+- `PreCompact` → `pre-compact.sh` (project-aware compaction instructions)
+- `PreToolUse[Agent]` → `subagent-model-router.sh` (model routing)
 
 ## Skills Library
 
@@ -84,30 +140,19 @@ Bootstrap system for Claude Code and its plugin ecosystem. Single command instal
 | `scrum-master` | Process | Agile / Scrum facilitation |
 | `architect-role` | Process | Technical leadership patterns |
 
-## Subagent Model Router
-
-`hooks/subagent-model-router.sh` intercepts every `Agent` tool call and routes to the cheapest capable model:
-
-| Subagent type | Model |
-|---------------|-------|
-| `Explore`, `statusline-setup`, `claude-code-guide` | Haiku |
-| `general-purpose` with simple lookup prompt | Haiku |
-| `general-purpose` with complex prompt (implement/debug/design/…) | Sonnet |
-| `Plan`, `superpowers:code-reviewer` | Sonnet (floor) |
-| Everything else | inherits parent model |
-
 ## Where Files Are Installed
 
 | Path | Contents |
 |------|----------|
-| `~/.claude/settings.json` | Claude Code settings |
+| `~/.claude/settings.json` | Claude Code settings (UX prefs, hooks, env vars, statusline) |
 | `~/.claude/CLAUDE.md` | Global instructions, skill router |
 | `~/.claude/statusline.sh` | Statusline script |
-| `~/.claude/hooks/` | Installed hooks (subagent router, caveman, …) |
+| `~/.claude/hooks/subagent-model-router.sh` | Subagent model routing hook |
+| `~/.claude/hooks/pre-compact.sh` | Pre-compact instructions hook |
 | `~/.claude/skills/<id>/` | Skill directories from registry |
 | `~/.claude.json` | MCP server registrations (context-mode) |
 | `~/.claude-bootstrap/logs/results.tsv` | Per-component install results |
-| `~/.claude-bootstrap/logs/` | Full log output |
+| `~/.claude-bootstrap/logs/` | Full log output per run |
 
 ## Rollback / Backups
 
