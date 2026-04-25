@@ -136,6 +136,7 @@ run_script() {
 }
 
 # ── Script execution order ────────────────────────────────────────────────────
+run_script "scripts/install_deps.sh"         1
 run_script "scripts/install_claude_code.sh"  1
 run_script "scripts/configure_settings.sh"   1
 run_script "scripts/install_rtk.sh"

@@ -19,6 +19,7 @@ Bootstrap system for Claude Code and its plugin ecosystem. Single command instal
 
 | Component | What it does | Skip flag | Verify |
 |-----------|-------------|-----------|--------|
+| deps | Installs system packages: curl, git, python3, node/npm, jq, pipx | `--skip deps` | all present in PATH |
 | claude-code | Claude Code CLI | `--skip claude-code` | `claude --version` |
 | rtk | Token-saving proxy — 60–90% context reduction on shell output | `--skip rtk` | `rtk gain` |
 | code-review-graph | Persistent codebase knowledge graph for token-efficient reviews | `--skip code-review-graph` | `code-review-graph --version` |
@@ -34,26 +35,54 @@ Bootstrap system for Claude Code and its plugin ecosystem. Single command instal
 
 50+ curated skills installed from community repos via sparse clone. Use `--skills-only <ids>` to install a subset.
 
-### Languages
-`python-pro` · `typescript-pro` · `golang-pro` · `rust-pro` · `java-architect` · `kotlin-specialist` · `swift-expert` · `csharp-developer` · `cpp-pro` · `php-pro` · `ruby-rails` · `elixir-pro` · `react` · `vue-expert` · `angular-architect` · `nextjs-developer` · `nestjs-expert` · `django-expert` · `fastapi-expert` · `laravel-specialist` · `flutter-expert`
-
-### Databases
-`postgres-pro` · `redis-pro` · `dynamodb-pro` · `mongodb-pro` · `database-designer`
-
-### Cloud / Infrastructure
-`aws-solution-architect` · `terraform` · `kubernetes-ops` · `docker` · `ci-cd`
-
-### Testing
-`tdd` · `bdd` · `unit-tests` · `test-automation`
-
-### API / Architecture
-`api-designer` · `openapi-docs` · `api-security` · `system-design`
-
-### Engineering Practices
-`code-reviewer` · `security-review` · `debugging` · `git-workflow` · `refactoring`
-
-### Planning / Process
-`scrum-master` · `architect-role`
+| Skill | Category | Description |
+|-------|----------|-------------|
+| `python-pro` | Language | Python 3.11+ best practices |
+| `typescript-pro` | Language | Advanced TypeScript type systems |
+| `golang-pro` | Language | Go applications |
+| `rust-pro` | Language | Rust systems programming |
+| `java-architect` | Language | Java architecture patterns |
+| `kotlin-specialist` | Language | Kotlin development |
+| `swift-expert` | Language | Swift / iOS development |
+| `csharp-developer` | Language | C# / .NET development |
+| `cpp-pro` | Language | C++ systems programming |
+| `php-pro` | Language | PHP development |
+| `ruby-rails` | Language | Ruby on Rails |
+| `elixir-pro` | Language | Elixir / Phoenix |
+| `react` | Frontend | React patterns and hooks |
+| `vue-expert` | Frontend | Vue 3 / Composition API |
+| `angular-architect` | Frontend | Angular architecture |
+| `nextjs-developer` | Frontend | Next.js full-stack |
+| `flutter-expert` | Frontend | Flutter / Dart mobile |
+| `nestjs-expert` | Backend | NestJS applications |
+| `django-expert` | Backend | Django / Python web |
+| `fastapi-expert` | Backend | FastAPI / async Python |
+| `laravel-specialist` | Backend | Laravel / PHP web |
+| `postgres-pro` | Database | PostgreSQL query optimization |
+| `redis-pro` | Database | Redis client code |
+| `dynamodb-pro` | Database | DynamoDB table design |
+| `mongodb-pro` | Database | MongoDB patterns |
+| `database-designer` | Database | Schema and ERD design |
+| `aws-solution-architect` | Cloud | AWS architecture |
+| `terraform` | Cloud | Infrastructure as code |
+| `kubernetes-ops` | Cloud | Kubernetes operations |
+| `docker` | Cloud | Docker / containerization |
+| `ci-cd` | Cloud | CI/CD pipeline setup |
+| `unit-tests` | Testing | Unit test patterns |
+| `test-automation` | Testing | E2E and automation testing |
+| `api-designer` | API | REST API design |
+| `openapi-docs` | API | OpenAPI / Swagger docs |
+| `api-security` | API | API security patterns |
+| `system-design` | Architecture | System design |
+| `tdd` | Practices | Test-driven development |
+| `bdd` | Practices | Behavior-driven development |
+| `code-reviewer` | Practices | Code review automation |
+| `security-review` | Practices | Security review of changes |
+| `debugging` | Practices | Debugging strategies |
+| `git-workflow` | Practices | Git branching and workflow |
+| `refactoring` | Practices | Safe refactoring techniques |
+| `scrum-master` | Process | Agile / Scrum facilitation |
+| `architect-role` | Process | Technical leadership patterns |
 
 ## Subagent Model Router
 
@@ -96,7 +125,6 @@ Install results are recorded in `results.tsv` with status `OK`, `FAILED`, `SKIPP
 
 - macOS 12+ or Linux (x86_64 or arm64)
 - bash 4.0+
-- `curl`
-- `jq` (for subagent router hook)
-- `npm` (for claude-code installation)
 - Internet access for downloading components
+
+Bootstrap installs missing dependencies automatically (via Homebrew on macOS, apt-get/dnf/yum on Linux). Hard deps: `curl`, `git`, `python3`, `npm`. Soft deps: `jq`, `pipx`.
