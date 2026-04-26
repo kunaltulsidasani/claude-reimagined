@@ -7,137 +7,92 @@
 #   category:    grouping label
 #   repo:        GitHub owner/name
 #   path:        path inside the repo containing SKILL.md (and any supporting files)
+#   tier:        gold = SKILL.md + scripts/ + reference(s)/  | silver = SKILL.md + helper scripts/refs inline  | bronze = SKILL.md only
 #   description: one-liner
+#
+# Curation rule: skills that benefit from executable helpers (review, debug, test,
+# infra, MCP) MUST be tier ≥ silver. Pure-knowledge skills (language idioms, API
+# design philosophy) can stay bronze.
 
 skills:
 
-  # ── Languages ──────────────────────────────────────────────────────────────
+  # ── Anthropic Official (gold tier — full anatomy) ──────────────────────────
 
-  - id: python-pro
-    category: languages
+  - id: mcp-builder
+    category: tooling
+    repo: anthropics/skills
+    path: skills/mcp-builder
+    tier: gold
+    description: Build MCP servers — official Anthropic skill, has scripts + reference
+
+  - id: claude-api
+    category: tooling
+    repo: anthropics/skills
+    path: skills/claude-api
+    tier: gold
+    description: Claude API / Anthropic SDK across 8 languages (csharp, curl, go, java, php, python, ruby, typescript)
+
+  # ── Engineering Practices ──────────────────────────────────────────────────
+
+  - id: code-reviewer
+    category: engineering
+    repo: awesome-skills/code-review-skill
+    path: .
+    tier: gold
+    description: Code review — pr-analyzer.py + 11-language reference docs (React 19, Vue 3, Rust, TS, Java, Python, C/C++)
+
+  - id: debugging
+    category: engineering
+    repo: obra/superpowers
+    path: skills/systematic-debugging
+    tier: silver
+    description: Systematic debugging — root-cause tracing, defense-in-depth, find-polluter.sh, condition-based-waiting examples
+
+  - id: security-review
+    category: engineering
     repo: Jeffallan/claude-skills
-    path: skills/python-pro
-    description: Senior Python development — idiomatic patterns, stdlib mastery, tooling
+    path: skills/security-reviewer
+    tier: bronze
+    description: Security review — OWASP, threat modeling, dependency scanning (markdown-only; no public script-bearing alternative)
 
-  - id: typescript-pro
-    category: languages
-    repo: Jeffallan/claude-skills
-    path: skills/typescript-pro
-    description: TypeScript 5.x strict-mode, advanced types, toolchain
-
-  - id: golang-pro
-    category: languages
-    repo: Jeffallan/claude-skills
-    path: skills/golang-pro
-    description: Go — idiomatic concurrency, modules, performance
-
-  - id: rust-pro
-    category: languages
+  - id: git-workflow
+    category: engineering
     repo: Mindrally/skills
-    path: rust
-    description: Rust — ownership model, lifetimes, async/tokio
+    path: git-workflow
+    tier: bronze
+    description: Git — branching strategies, conventional commits, rebase vs merge
 
-  - id: java-architect
-    category: languages
+  # ── Testing ────────────────────────────────────────────────────────────────
+
+  - id: tdd
+    category: testing
+    repo: obra/superpowers
+    path: skills/test-driven-development
+    tier: silver
+    description: Test-Driven Development — RED/GREEN/REFACTOR cycle + testing-anti-patterns reference
+
+  - id: unit-tests
+    category: testing
+    repo: clear-solutions/unit-tests-skills
+    path: skills/generate-tests
+    tier: bronze
+    description: Battle-tested unit test generation principles (Java-focused; rules-based)
+
+  # ── API / Architecture ─────────────────────────────────────────────────────
+
+  - id: api-designer
+    category: api
     repo: Jeffallan/claude-skills
-    path: skills/java-architect
-    description: Java — Spring Boot, enterprise patterns, JVM tuning
+    path: skills/api-designer
+    tier: bronze
+    description: REST/GraphQL/OpenAPI 3.1 — resource modeling, versioning, security (knowledge skill — scripts not needed)
 
-  - id: kotlin-specialist
-    category: languages
-    repo: Jeffallan/claude-skills
-    path: skills/kotlin-specialist
-    description: Kotlin — coroutines, Android + JVM targets
-
-  - id: swift-expert
-    category: languages
-    repo: Jeffallan/claude-skills
-    path: skills/swift-expert
-    description: Swift — UIKit/SwiftUI, concurrency, Apple platform idioms
-
-  - id: csharp-developer
-    category: languages
-    repo: Jeffallan/claude-skills
-    path: skills/csharp-developer
-    description: C#/.NET — ASP.NET Core, LINQ, modern C# features
-
-  - id: cpp-pro
-    category: languages
-    repo: Jeffallan/claude-skills
-    path: skills/cpp-pro
-    description: C++ — modern C++20, memory management, STL
-
-  - id: php-pro
-    category: languages
-    repo: Jeffallan/claude-skills
-    path: skills/php-pro
-    description: PHP — modern PHP 8.x, PSR standards, Composer
-
-  - id: ruby-rails
-    category: languages
-    repo: Jeffallan/claude-skills
-    path: skills/rails-expert
-    description: Ruby on Rails — conventions, ActiveRecord, Hotwire
-
-  - id: elixir-pro
-    category: languages
-    repo: sickn33/antigravity-awesome-skills
-    path: skills/elixir-pro
-    description: Elixir — OTP, Phoenix, fault-tolerant systems
-
-  - id: react
-    category: languages
-    repo: Jeffallan/claude-skills
-    path: skills/react-expert
-    description: React — hooks, state management, performance patterns
-
-  - id: vue-expert
-    category: languages
-    repo: Jeffallan/claude-skills
-    path: skills/vue-expert
-    description: Vue 3 — Composition API, Pinia, Vite
-
-  - id: angular-architect
-    category: languages
-    repo: Jeffallan/claude-skills
-    path: skills/angular-architect
-    description: Angular — RxJS, signals, enterprise architecture
-
-  - id: nextjs-developer
-    category: languages
-    repo: Jeffallan/claude-skills
-    path: skills/nextjs-developer
-    description: Next.js — App Router, RSC, edge deployment
-
-  - id: nestjs-expert
-    category: languages
-    repo: Jeffallan/claude-skills
-    path: skills/nestjs-expert
-    description: NestJS — DI, guards, microservices, OpenAPI
-
-  - id: django-expert
-    category: languages
-    repo: Jeffallan/claude-skills
-    path: skills/django-expert
-    description: Django — ORM, DRF, async views, deployment
-
-  - id: fastapi-expert
-    category: languages
-    repo: Jeffallan/claude-skills
-    path: skills/fastapi-expert
-    description: FastAPI — Pydantic v2, async, dependency injection
-
-  - id: laravel-specialist
-    category: languages
-    repo: Jeffallan/claude-skills
-    path: skills/laravel-specialist
-    description: Laravel — Eloquent, queues, Livewire, Octane
-
-  - id: flutter-expert
-    category: languages
-    repo: sickn33/antigravity-awesome-skills
-    path: skills/flutter-expert
-    description: Flutter/Dart — widgets, state, platform channels
+  - id: openapi-docs
+    category: api
+    repo: SpillwaveSolutions/document-specialist-skill
+    path: .
+    tier: bronze
+    description: OpenAPI spec generation, reverse-engineer from code, PDA docs
 
   # ── Databases ──────────────────────────────────────────────────────────────
 
@@ -145,24 +100,28 @@ skills:
     category: databases
     repo: Jeffallan/claude-skills
     path: skills/postgres-pro
+    tier: bronze
     description: PostgreSQL — query tuning, indexing, JSONB, replication
 
   - id: redis-pro
     category: databases
     repo: Mindrally/skills
     path: redis-best-practices
+    tier: bronze
     description: Redis — data structures, pub/sub, clustering, Lua
 
   - id: mongodb-pro
     category: databases
     repo: Mindrally/skills
     path: mongodb-development
+    tier: bronze
     description: MongoDB — schema design, aggregation pipeline, Atlas
 
   - id: database-designer
     category: databases
     repo: alirezarezvani/claude-skills
     path: engineering/database-designer
+    tier: bronze
     description: Multi-DB decision skill — PostgreSQL vs MySQL vs Redis vs DynamoDB
 
   # ── Cloud / Infrastructure ─────────────────────────────────────────────────
@@ -171,96 +130,172 @@ skills:
     category: infrastructure
     repo: Jeffallan/claude-skills
     path: skills/cloud-architect
+    tier: bronze
     description: AWS — well-architected, CDK, cost optimization, multi-region
 
   - id: terraform
     category: infrastructure
     repo: Jeffallan/claude-skills
     path: skills/terraform-engineer
+    tier: bronze
     description: Terraform — modules, state management, provider patterns
 
   - id: kubernetes-ops
     category: infrastructure
     repo: seokheejang/claude-ops-skills
     path: skills/k8s-ops
+    tier: bronze
     description: Kubernetes — deployments, RBAC, HPA, troubleshooting runbooks
 
   - id: docker
     category: infrastructure
     repo: Mindrally/skills
     path: docker
+    tier: bronze
     description: Docker — multi-stage builds, Compose, security hardening
 
   - id: ci-cd
     category: infrastructure
     repo: Mindrally/skills
     path: ci-cd-best-practices
+    tier: bronze
     description: CI/CD — GitHub Actions, GitLab CI, pipeline design
 
-  # ── Testing ────────────────────────────────────────────────────────────────
+  # ── Languages (bronze — knowledge skills, scripts add no value) ────────────
 
-  - id: tdd
-    category: testing
-    repo: obra/superpowers
-    path: skills/test-driven-development
-    description: Test-Driven Development — red/green/refactor cycle
-
-  - id: unit-tests
-    category: testing
-    repo: clear-solutions/unit-tests-skills
-    path: skills/generate-tests
-    description: Battle-tested unit test generation principles across all languages
-
-  # ── API / Architecture ─────────────────────────────────────────────────────
-
-  - id: api-designer
-    category: api
+  - id: python-pro
+    category: languages
     repo: Jeffallan/claude-skills
-    path: skills/api-designer
-    description: REST/GraphQL/OpenAPI 3.1 — resource modeling, versioning, security
+    path: skills/python-pro
+    tier: bronze
+    description: Senior Python development — idiomatic patterns, stdlib mastery, tooling
 
-  - id: openapi-docs
-    category: api
-    repo: SpillwaveSolutions/document-specialist-skill
-    path: .
-    description: OpenAPI spec generation, reverse-engineer from code, PDA docs
-
-  # ── Engineering Practices ──────────────────────────────────────────────────
-
-  - id: code-reviewer
-    category: engineering
-    repo: awesome-skills/code-review-skill
-    path: .
-    description: Code review — 9500+ lines of guidelines across 11 languages
-
-  - id: security-review
-    category: engineering
+  - id: typescript-pro
+    category: languages
     repo: Jeffallan/claude-skills
-    path: skills/security-reviewer
-    description: Security review — OWASP, threat modeling, dependency scanning
+    path: skills/typescript-pro
+    tier: bronze
+    description: TypeScript 5.x strict-mode, advanced types, toolchain
 
-  - id: debugging
-    category: engineering
-    repo: obra/superpowers
-    path: skills/systematic-debugging
-    description: Systematic debugging — root cause analysis, observability
+  - id: golang-pro
+    category: languages
+    repo: Jeffallan/claude-skills
+    path: skills/golang-pro
+    tier: bronze
+    description: Go — idiomatic concurrency, modules, performance
 
-  - id: git-workflow
-    category: engineering
+  - id: rust-pro
+    category: languages
     repo: Mindrally/skills
-    path: git-workflow
-    description: Git — branching strategies, conventional commits, rebase vs merge
+    path: rust
+    tier: bronze
+    description: Rust — ownership model, lifetimes, async/tokio
 
-  # ── Planning / Process ─────────────────────────────────────────────────────
+  - id: java-architect
+    category: languages
+    repo: Jeffallan/claude-skills
+    path: skills/java-architect
+    tier: bronze
+    description: Java — Spring Boot, enterprise patterns, JVM tuning
 
-  - id: scrum-master
-    category: process
-    repo: alirezarezvani/claude-skills
-    path: project-management/scrum-master
-    description: Scrum facilitation — sprint planning, retros, impediment removal
+  - id: csharp-developer
+    category: languages
+    repo: Jeffallan/claude-skills
+    path: skills/csharp-developer
+    tier: bronze
+    description: C#/.NET — ASP.NET Core, LINQ, modern C# features
 
-  - id: architect-role
-    category: process
-    repo: aj-geddes/claude-code-bmad-skills
-    path: bmad-skills/system-architect
-    description: BMAD architect role — ADRs, tech decisions, stakeholder communication
+  - id: cpp-pro
+    category: languages
+    repo: Jeffallan/claude-skills
+    path: skills/cpp-pro
+    tier: bronze
+    description: C++ — modern C++20, memory management, STL
+
+  - id: kotlin-specialist
+    category: languages
+    repo: Jeffallan/claude-skills
+    path: skills/kotlin-specialist
+    tier: bronze
+    description: Kotlin — coroutines, Android + JVM targets
+
+  - id: swift-expert
+    category: languages
+    repo: Jeffallan/claude-skills
+    path: skills/swift-expert
+    tier: bronze
+    description: Swift — UIKit/SwiftUI, concurrency, Apple platform idioms
+
+  - id: php-pro
+    category: languages
+    repo: Jeffallan/claude-skills
+    path: skills/php-pro
+    tier: bronze
+    description: PHP — modern PHP 8.x, PSR standards, Composer
+
+  - id: ruby-rails
+    category: languages
+    repo: Jeffallan/claude-skills
+    path: skills/rails-expert
+    tier: bronze
+    description: Ruby on Rails — conventions, ActiveRecord, Hotwire
+
+  - id: react
+    category: languages
+    repo: Jeffallan/claude-skills
+    path: skills/react-expert
+    tier: bronze
+    description: React — hooks, state management, performance patterns
+
+  - id: vue-expert
+    category: languages
+    repo: Jeffallan/claude-skills
+    path: skills/vue-expert
+    tier: bronze
+    description: Vue 3 — Composition API, Pinia, Vite
+
+  - id: angular-architect
+    category: languages
+    repo: Jeffallan/claude-skills
+    path: skills/angular-architect
+    tier: bronze
+    description: Angular — RxJS, signals, enterprise architecture
+
+  - id: nextjs-developer
+    category: languages
+    repo: Jeffallan/claude-skills
+    path: skills/nextjs-developer
+    tier: bronze
+    description: Next.js — App Router, RSC, edge deployment
+
+  - id: nestjs-expert
+    category: languages
+    repo: Jeffallan/claude-skills
+    path: skills/nestjs-expert
+    tier: bronze
+    description: NestJS — DI, guards, microservices, OpenAPI
+
+  - id: django-expert
+    category: languages
+    repo: Jeffallan/claude-skills
+    path: skills/django-expert
+    tier: bronze
+    description: Django — ORM, DRF, async views, deployment
+
+  - id: fastapi-expert
+    category: languages
+    repo: Jeffallan/claude-skills
+    path: skills/fastapi-expert
+    tier: bronze
+    description: FastAPI — Pydantic v2, async, dependency injection
+
+  - id: laravel-specialist
+    category: languages
+    repo: Jeffallan/claude-skills
+    path: skills/laravel-specialist
+    tier: bronze
+    description: Laravel — Eloquent, queues, Livewire, Octane
+
+  # ── Pruned (low signal / no script availability / niche frameworks) ────────
+  # Removed: elixir-pro, flutter-expert (sickn33/antigravity-awesome-skills — low stars, no scripts)
+  # Removed: scrum-master, architect-role (process skills, scope mismatch with engineering registry)

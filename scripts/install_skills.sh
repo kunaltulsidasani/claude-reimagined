@@ -102,6 +102,7 @@ for repo in "${!REPO_SKILLS[@]}"; do
 
     # Collect sparse paths for this repo
     sparse_paths=()
+    needs_full_repo=false
     declare -A skill_path_map   # skill_id → path_in_repo
     read -ra _entries <<< "${REPO_SKILLS[${repo}]:-}"
     for entry in "${_entries[@]}"; do
@@ -109,7 +110,13 @@ for repo in "${!REPO_SKILLS[@]}"; do
         s_id="${entry%%:*}"
         s_path="${entry#*:}"
         skill_path_map["${s_id}"]="${s_path}"
-        [[ "${s_path}" != "." ]] && sparse_paths+=("${s_path}")
+        if [[ "${s_path}" == "." ]]; then
+            # Root-path skill — sparse-checkout cone-mode default excludes subdirs,
+            # so we must disable sparse to get scripts/, reference/, etc.
+            needs_full_repo=true
+        else
+            sparse_paths+=("${s_path}")
+        fi
     done
 
     # Sparse clone — only fetch needed directories
@@ -130,8 +137,13 @@ for repo in "${!REPO_SKILLS[@]}"; do
         continue
     fi
 
-    # Set sparse-checkout paths
-    if [[ ${#sparse_paths[@]} -gt 0 ]]; then
+    # Set sparse-checkout paths (or disable for root-path skills)
+    if [[ "${needs_full_repo}" == true ]]; then
+        (
+            cd "${repo_tmpdir}"
+            git sparse-checkout disable 2>/dev/null || true
+        )
+    elif [[ ${#sparse_paths[@]} -gt 0 ]]; then
         (
             cd "${repo_tmpdir}"
             git sparse-checkout set --no-cone "${sparse_paths[@]}" 2>/dev/null || true
