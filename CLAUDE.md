@@ -1,3 +1,4 @@
+@~/.claude/CLAUDE.md
 <!-- code-review-graph MCP tools -->
 ## MCP Tools: code-review-graph
 
