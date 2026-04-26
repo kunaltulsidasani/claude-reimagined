@@ -1,8 +1,32 @@
 # claude-reimagined
 
-A one-command bootstrap that turns a fresh machine into a fully wired Claude Code workstation — CLI, plugins, hooks, MCP servers, statusline, and a 40+ skill library, all configured to work together out of the box.
+> A one-command bootstrap that turns a fresh machine into a fully wired Claude Code workstation — CLI, plugins, hooks, MCP servers, statusline, and a 40+ skill library, all configured to work together out of the box.
 
-If you've ever spent an afternoon stitching together Claude Code, RTK, context-mode, code-review-graph, caveman, custom hooks, and a skill router — this repo is that afternoon, automated.
+If you've ever spent an afternoon stitching together [Claude Code], [RTK], [context-mode], [code-review-graph], [caveman], custom hooks, and a skill router — this repo is that afternoon, automated.
+
+[Claude Code]: https://github.com/anthropics/claude-code
+[RTK]: https://github.com/rtk-ai/rtk
+[context-mode]: https://github.com/mksglu/context-mode
+[code-review-graph]: https://pypi.org/project/code-review-graph/
+[caveman]: https://github.com/JuliusBrussee/caveman
+
+---
+
+## Table of Contents
+
+- [Install](#install)
+- [Repository Structure](#repository-structure)
+- [What You Get](#what-you-get)
+- [code-review-graph Per-Repo Setup](#code-review-graph-per-repo-setup)
+- [Hooks Deep-Dive](#hooks-deep-dive)
+- [Settings](#settings)
+- [Skills Library](#skills-library)
+- [Where Files Land](#where-files-land)
+- [Rollback](#rollback)
+- [Requirements](#requirements)
+- [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
+- [License](#license)
 
 ---
 
@@ -16,75 +40,139 @@ cd claude-reimagined
 ./bootstrap.sh
 ```
 
-That's it. The bootstrapper will:
+The bootstrapper will:
 
 1. Detect your OS and check for missing dependencies (`curl`, `git`, `python3`, `npm`, `jq`, `pipx`).
-2. Walk through each component, explain what it does, and ask before installing.
+2. Walk through each component, explain what it does, and ask before installing — **default is yes**, just hit Enter to accept. Type `n` to skip.
 3. Print a verification summary at the end.
 
 ### Other modes
 
 ```bash
 ./bootstrap.sh --dry-run                              # preview only — no changes
-./bootstrap.sh --yes                                  # auto-approve every prompt
+./bootstrap.sh --yes                                  # auto-approve every prompt (no confirmations)
 ./bootstrap.sh --force                                # reinstall components already present
 ./bootstrap.sh --clean --yes                          # wipe ~/.claude first, then fresh install
-./bootstrap.sh --skip rtk,caveman --yes               # skip specific components
+./bootstrap.sh --skip rtk,caveman                     # skip specific components
 ./bootstrap.sh --skills-only python-pro,golang-pro    # install only chosen skills
 ```
 
 ---
 
-## What you get, and why
+## Repository Structure
 
-Each component solves a specific pain point with vanilla Claude Code. You can skip any of them with `--skip <id>`.
-
-### `claude-code` — the CLI itself
-Claude Code is Anthropic's official CLI. Everything else in this repo plugs into it. If you don't have it, the bootstrapper installs the latest version via `npm`.
-
-### `rtk` — Rust Token Killer
-A shell proxy that rewrites your `git`, `ls`, `grep`, etc. through a token-aware filter. Cuts shell-output context usage by **60–90%** on dev operations. Once installed, a hook transparently rewrites `git status` → `rtk git status`, so you don't change how you type commands.
-**Why you want it:** Claude burns through context fast on noisy command output. RTK trims the noise before it reaches the model.
-
-### `code-review-graph` — persistent codebase knowledge graph
-A Tree-sitter-powered graph of your codebase: functions, classes, calls, imports, tests. Updates incrementally on every file change via a hook. Claude queries the graph instead of re-reading files when it needs structural context.
-**Why you want it:** code review and impact analysis without re-grepping the same files every turn. Faster, cheaper, and gives Claude knowledge it physically cannot get from `Grep`.
-
-### `context-mode` — sandboxed command output
-An MCP plugin. Large command output (build logs, test runs, JSON dumps) goes into a sandbox FTS5 index instead of flooding the context window. Claude searches the sandbox with FTS queries.
-**Why you want it:** a `pytest -v` or `npm run build` shouldn't eat 50k tokens. With context-mode, it eats ~200 — the chunk title and the matching lines.
-
-### `caveman` — terse communication mode
-A Claude Code plugin that injects a system prompt telling Claude to drop articles, filler, and pleasantries while keeping all technical substance. ~75% fewer output tokens with no loss of correctness.
-**Why you want it:** Claude's default tone is friendly and verbose. Caveman makes it terse without dumbing it down.
-
-### `statusline` — terminal statusline
-A shell script that renders the current Claude Code session state — model, token usage, cost — into your terminal statusline.
-**Why you want it:** know at a glance whether you're on Opus or Haiku, and how much context is left, without `/status`.
-
-### `subagent-router` — model routing hook
-A `PreToolUse` hook that fires before every `Agent` spawn. It inspects the subagent type and prompt, then pins a model: Haiku for cheap lookups (Explore, statusline-setup), Sonnet for general work, Opus only when you explicitly choose it. Saves cost on every spawned agent automatically.
-**Why you want it:** you'd never manually pick Haiku for every file-search subagent. The hook does it for you.
-
-### `pre-compact` — context-aware compaction
-A `PreCompact` hook that fires right before Claude auto-compacts the context window. It detects your stack (Next.js, Go, FastAPI, Rails, etc.), reads git state, and writes targeted preservation instructions for the summarizer.
-**Why you want it:** vanilla compaction drops mid-task state — error messages, files touched, blocked work. With this hook, those things survive every compact, so resuming work is seamless instead of a re-discovery exercise.
-
-### `skills` — 40+ curated skill library
-Skills are domain-specific prompting libraries Claude picks up automatically via the skill router. The bootstrapper installs them into `~/.claude/skills/` from community repos via sparse clone.
-**Why you want it:** ask Claude "build me a NestJS module" and the `nestjs-expert` skill kicks in with framework-specific patterns. Without skills, you'd hand-write that context every time.
+```
+claude-reimagined/
+├── bootstrap.sh                  # entry point — orchestrates every install script
+├── statusline.sh                 # Claude Code statusline renderer
+├── Makefile                      # `make install`, `make test`, `make verify`
+├── CLAUDE.md                     # project-level Claude Code instructions
+├── LICENSE                       # MIT
+│
+├── configs/
+│   └── settings.json             # reference settings.json (user-managed copy)
+│
+├── hooks/
+│   ├── pre-compact.sh            # PreCompact hook — survives auto-compaction
+│   └── subagent-model-router.sh  # PreToolUse[Agent] hook — routes models per subagent
+│
+├── lib/
+│   └── common.sh                 # shared bash helpers (logging, prompts, results)
+│
+├── scripts/
+│   ├── install_deps.sh             # curl, git, python3, npm, jq, pipx
+│   ├── install_claude_code.sh      # Claude Code CLI
+│   ├── install_rtk.sh              # RTK token-killer proxy
+│   ├── install_context_mode.sh     # context-mode MCP plugin
+│   ├── install_code_review_graph.sh# code-review-graph MCP server
+│   ├── install_caveman.sh          # caveman terse-mode plugin
+│   ├── install_statusline.sh       # statusline registration
+│   ├── install_subagent_router.sh  # subagent model-routing hook
+│   ├── install_pre_compact.sh      # pre-compact hook
+│   ├── install_skills.sh           # 39 skills from registry.yaml via sparse clone
+│   └── verify_installation.sh      # post-install verification
+│
+├── skills/
+│   └── registry.yaml             # curated skill registry (id → repo:path, tier)
+│
+├── tests/
+│   ├── run_tests.sh              # zero-dep bash test runner
+│   ├── lib/helpers.sh            # test fixtures and assertions
+│   ├── unit/                     # unit tests — common.sh, hooks, routers
+│   └── integration/              # E2E tests for every install script
+│
+└── logs/                         # ignored — populated at runtime
+```
 
 ---
 
-## Hooks deep-dive
+## What You Get
+
+Each component solves a specific pain point with vanilla Claude Code. You can skip any of them with `--skip <id>`.
+
+| Component | Upstream | Why you want it |
+|-----------|----------|-----------------|
+| **claude-code** | [anthropics/claude-code](https://github.com/anthropics/claude-code) | The CLI everything else plugs into. |
+| **rtk** | [rtk-ai/rtk](https://github.com/rtk-ai/rtk) | Shell proxy that rewrites `git`/`ls`/`grep`/etc. through a token-aware filter. **60–90%** less context burned on shell output. A hook rewrites `git status` → `rtk git status` transparently. |
+| **code-review-graph** | [PyPI: code-review-graph](https://pypi.org/project/code-review-graph/) | Tree-sitter knowledge graph of your codebase: functions, classes, calls, imports, tests. Updates incrementally on file change. Claude queries the graph instead of re-reading files. *Per-repo setup required — see [below](#code-review-graph-per-repo-setup).* |
+| **context-mode** | [mksglu/context-mode](https://github.com/mksglu/context-mode) | MCP plugin. Routes large command output (build logs, test runs, JSON dumps) into a sandbox FTS5 index. A `pytest -v` eats ~200 tokens instead of 50k. |
+| **caveman** | [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman) | Plugin that injects a terse-style system prompt. ~75% fewer output tokens with no loss of correctness. |
+| **statusline** | (this repo) | Renders model, token usage, and cost into your terminal statusline. |
+| **subagent-router** | (this repo) | `PreToolUse[Agent]` hook that pins Haiku for cheap lookups, Sonnet for general work, Opus only when explicitly chosen. Saves cost on every spawned agent automatically. |
+| **pre-compact** | (this repo) | `PreCompact` hook that detects your stack and writes preservation instructions before auto-compaction. Mid-task state, error messages, and blocked work survive every compact. |
+| **skills** | various — see [registry](skills/registry.yaml) | 39 curated domain skills installed into `~/.claude/skills/` via sparse clone. |
+
+---
+
+## code-review-graph Per-Repo Setup
+
+The bootstrapper installs the `code-review-graph` binary globally, but the **MCP integration is per-repo** — you opt in for each project where you want it.
+
+```bash
+cd /path/to/your/repo
+code-review-graph install
+```
+
+That command:
+
+1. Adds an MCP server entry to the project's `.mcp.json` (or creates one).
+2. Sets up file-watcher hooks (via Claude Code's `PostToolUse` hook system) so the graph updates incrementally on every `Edit`, `Write`, or `MultiEdit`.
+3. Builds the initial graph by parsing the repo with Tree-sitter (one-time, takes seconds to a minute depending on repo size).
+
+### Verify it worked
+
+```bash
+code-review-graph status      # shows nodes/edges/files counts
+ls .code-review-graph/         # graph DB lives here, gitignored
+cat .mcp.json                  # MCP server entry should be present
+```
+
+In Claude Code, the graph tools (`detect_changes`, `get_review_context`, `query_graph`, `semantic_search_nodes`, etc.) will appear in the tool list once you restart the session. See [`CLAUDE.md`](CLAUDE.md) in this repo for an example of instructing Claude to prefer graph tools over Grep.
+
+### Update or rebuild
+
+```bash
+code-review-graph build       # incremental rebuild (called automatically by hooks)
+code-review-graph build --full # full rebuild from scratch
+```
+
+### Add `.code-review-graph/` to gitignore
+
+```
+echo '.code-review-graph/' >> .gitignore
+```
+
+The graph database is local-machine state — don't commit it.
+
+---
+
+## Hooks Deep-Dive
 
 ### `pre-compact` — survive context compaction
 
-**File:** `hooks/pre-compact.sh` → `~/.claude/hooks/pre-compact.sh`
-
-**Fires:** immediately before Claude auto-compacts (triggered at 80% context via `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`).
-
-**Does:** detects your stack, schema files, API directories, and git state, then writes preservation instructions to stdout. Claude's compaction summarizer reads these and decides what to keep.
+- **File:** `hooks/pre-compact.sh` → `~/.claude/hooks/pre-compact.sh`
+- **Fires:** immediately before Claude auto-compacts (triggered at 80% context via `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`).
+- **Does:** detects your stack, schema files, API directories, and git state, then writes preservation instructions to stdout. Claude's compaction summarizer reads these and decides what to keep.
 
 **Stack detection covers:** JS/TS (Next.js, NestJS, React, Node), Go, Python (FastAPI, Django, Flask), Rust, Flutter, Java/Maven, Kotlin/Gradle, Ruby/Rails, Swift, C#/.NET. Each stack has its own preservation rules — test command, build command, schema file, API dirs.
 
@@ -92,11 +180,9 @@ Skills are domain-specific prompting libraries Claude picks up automatically via
 
 ### `subagent-model-router` — auto-pick the cheapest capable model
 
-**File:** `hooks/subagent-model-router.sh` → `~/.claude/hooks/subagent-model-router.sh`
-
-**Fires:** before every `Agent` tool call.
-
-**Does:** inspects `subagent_type` and prompt complexity, rewrites the tool input via `updatedInput` to pin a specific model.
+- **File:** `hooks/subagent-model-router.sh` → `~/.claude/hooks/subagent-model-router.sh`
+- **Fires:** before every `Agent` tool call.
+- **Does:** inspects `subagent_type` and prompt complexity, rewrites the tool input via `updatedInput` to pin a specific model.
 
 | Subagent type | Routed model |
 |---------------|-------------|
@@ -108,22 +194,22 @@ Skills are domain-specific prompting libraries Claude picks up automatically via
 
 ---
 
-## Settings (`~/.claude/settings.json`)
+## Settings
 
-This file is **user-managed**, not auto-installed. The bootstrapper verifies it exists at the end. If you don't have one, copy `configs/settings.json.example` (if shipped) or build one with the values below.
+`~/.claude/settings.json` is **user-managed**. The bootstrapper verifies it exists at the end. A reference copy lives in [`configs/settings.json`](configs/settings.json).
 
 | Setting | Value | Why |
 |---------|-------|-----|
-| `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` | `80` | trigger auto-compact at 80% instead of default 95%, giving the pre-compact hook room to run |
-| `skillListingMaxDescChars` | `300` | cap skill descriptions in the listing — keeps the skill router prompt lean |
-| `skillListingBudgetFraction` | `0.005` | limit skill listing to 0.5% of context — registry shouldn't burn meaningful tokens |
-| `spinnerTipsEnabled` | `false` | disable loading tips — noise |
-| `effortLevel` | `medium` | default thinking effort; override per-task with `/effort` |
-| `promptSuggestionEnabled` | `false` | disable inline suggestions — they interrupt flow |
-| `tui` | `fullscreen` | full-screen TUI instead of inline terminal mode |
-| `prefersReducedMotion` | `true` | disable TUI animations |
-| `showThinkingSummaries` | `false` | hide extended thinking summaries — reduces noise |
-| `autoScrollEnabled` | `false` | disable auto-scroll so output stays readable mid-task |
+| `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` | `80` | Trigger auto-compact at 80% instead of 95%, giving the pre-compact hook room to run. |
+| `skillListingMaxDescChars` | `300` | Cap skill descriptions in the listing — keeps the skill router prompt lean. |
+| `skillListingBudgetFraction` | `0.005` | Limit skill listing to 0.5% of context. |
+| `spinnerTipsEnabled` | `false` | Disable loading tips. |
+| `effortLevel` | `medium` | Default thinking effort; override per-task with `/effort`. |
+| `promptSuggestionEnabled` | `false` | Disable inline suggestions. |
+| `tui` | `fullscreen` | Full-screen TUI mode. |
+| `prefersReducedMotion` | `true` | Disable TUI animations. |
+| `showThinkingSummaries` | `false` | Hide extended thinking summaries. |
+| `autoScrollEnabled` | `false` | Output stays readable mid-task. |
 
 Hooks registered in `settings.json`:
 - `PreCompact` → `pre-compact.sh`
@@ -131,67 +217,65 @@ Hooks registered in `settings.json`:
 
 ---
 
-## Skills library
+## Skills Library
 
-40+ skills installed from community repos via sparse clone. Use `--skills-only <ids>` to pick a subset.
+39 skills from community repos, sparse-cloned into `~/.claude/skills/<id>/`. Use `--skills-only <ids>` to pick a subset.
 
-| Skill | Category | Description |
-|-------|----------|-------------|
-| `python-pro` | Language | Python 3.11+ best practices |
-| `typescript-pro` | Language | Advanced TypeScript type systems |
-| `golang-pro` | Language | Go applications |
-| `rust-pro` | Language | Rust systems programming |
-| `java-architect` | Language | Java architecture patterns |
-| `kotlin-specialist` | Language | Kotlin development |
-| `swift-expert` | Language | Swift / iOS development |
-| `csharp-developer` | Language | C# / .NET development |
-| `cpp-pro` | Language | C++ systems programming |
-| `php-pro` | Language | PHP development |
-| `ruby-rails` | Language | Ruby on Rails |
-| `elixir-pro` | Language | Elixir / Phoenix |
-| `react` | Frontend | React patterns and hooks |
-| `vue-expert` | Frontend | Vue 3 / Composition API |
-| `angular-architect` | Frontend | Angular architecture |
-| `nextjs-developer` | Frontend | Next.js full-stack |
-| `flutter-expert` | Frontend | Flutter / Dart mobile |
-| `nestjs-expert` | Backend | NestJS applications |
-| `django-expert` | Backend | Django / Python web |
-| `fastapi-expert` | Backend | FastAPI / async Python |
-| `laravel-specialist` | Backend | Laravel / PHP web |
-| `postgres-pro` | Database | PostgreSQL query optimization |
-| `redis-pro` | Database | Redis client code |
-| `dynamodb-pro` | Database | DynamoDB table design |
-| `mongodb-pro` | Database | MongoDB patterns |
-| `database-designer` | Database | Schema and ERD design |
-| `aws-solution-architect` | Cloud | AWS architecture |
-| `terraform` | Cloud | Infrastructure as code |
-| `kubernetes-ops` | Cloud | Kubernetes operations |
-| `docker` | Cloud | Docker / containerization |
-| `ci-cd` | Cloud | CI/CD pipeline setup |
-| `unit-tests` | Testing | Unit test patterns |
-| `test-automation` | Testing | E2E and automation testing |
-| `api-designer` | API | REST API design |
-| `openapi-docs` | API | OpenAPI / Swagger docs |
-| `api-security` | API | API security patterns |
-| `system-design` | Architecture | System design |
-| `tdd` | Practices | Test-driven development |
-| `bdd` | Practices | Behavior-driven development |
-| `code-reviewer` | Practices | Code review automation |
-| `security-review` | Practices | Security review of changes |
-| `debugging` | Practices | Debugging strategies |
-| `git-workflow` | Practices | Git branching and workflow |
-| `refactoring` | Practices | Safe refactoring techniques |
-| `scrum-master` | Process | Agile / Scrum facilitation |
-| `architect-role` | Process | Technical leadership patterns |
+Each entry in [`skills/registry.yaml`](skills/registry.yaml) is tagged with a tier:
+
+| Tier | Anatomy | Example |
+|------|---------|---------|
+| **gold** | `SKILL.md` + `scripts/` + `reference/` | `code-reviewer`, `mcp-builder`, `claude-api` |
+| **silver** | `SKILL.md` + helper scripts/refs inline | `tdd`, `debugging` |
+| **bronze** | `SKILL.md` only (knowledge-only skill) | most language and infra skills |
+
+### Gold tier (full anatomy with executable helpers)
+
+| Skill | Source |
+|-------|--------|
+| `mcp-builder` | [anthropics/skills](https://github.com/anthropics/skills/tree/main/skills/mcp-builder) |
+| `claude-api` | [anthropics/skills](https://github.com/anthropics/skills/tree/main/skills/claude-api) |
+| `code-reviewer` | [awesome-skills/code-review-skill](https://github.com/awesome-skills/code-review-skill) |
+
+### Silver tier (helpers inline)
+
+| Skill | Source |
+|-------|--------|
+| `tdd` | [obra/superpowers](https://github.com/obra/superpowers/tree/main/skills/test-driven-development) |
+| `debugging` | [obra/superpowers](https://github.com/obra/superpowers/tree/main/skills/systematic-debugging) |
+
+### Bronze tier (knowledge skills)
+
+| Category | Skills |
+|----------|--------|
+| Languages | `python-pro`, `typescript-pro`, `golang-pro`, `rust-pro`, `java-architect`, `kotlin-specialist`, `swift-expert`, `csharp-developer`, `cpp-pro`, `php-pro`, `ruby-rails` |
+| Frontend | `react`, `vue-expert`, `angular-architect`, `nextjs-developer` |
+| Backend | `nestjs-expert`, `django-expert`, `fastapi-expert`, `laravel-specialist` |
+| Databases | `postgres-pro`, `redis-pro`, `mongodb-pro`, `database-designer` |
+| Infrastructure | `aws-solution-architect`, `terraform`, `kubernetes-ops`, `docker`, `ci-cd` |
+| Testing | `unit-tests` |
+| API | `api-designer`, `openapi-docs` |
+| Engineering | `security-review`, `git-workflow` |
+
+Upstream sources (full repo list):
+- [anthropics/skills](https://github.com/anthropics/skills)
+- [obra/superpowers](https://github.com/obra/superpowers)
+- [awesome-skills/code-review-skill](https://github.com/awesome-skills/code-review-skill)
+- [Jeffallan/claude-skills](https://github.com/Jeffallan/claude-skills)
+- [Mindrally/skills](https://github.com/Mindrally/skills)
+- [alirezarezvani/claude-skills](https://github.com/alirezarezvani/claude-skills)
+- [seokheejang/claude-ops-skills](https://github.com/seokheejang/claude-ops-skills)
+- [SpillwaveSolutions/document-specialist-skill](https://github.com/SpillwaveSolutions/document-specialist-skill)
+- [clear-solutions/unit-tests-skills](https://github.com/clear-solutions/unit-tests-skills)
 
 ---
 
-## Where files land
+## Where Files Land
 
 | Path | Contents |
 |------|----------|
-| `~/.claude/settings.json` | Claude Code settings (UX prefs, hooks, env vars, statusline) — **user-managed** |
-| `~/.claude/CLAUDE.md` | Global instructions, skill router — **user-managed** |
+| `~/.claude/settings.json` | Claude Code settings — **user-managed** |
+| `~/.claude/CLAUDE.md` | Global instructions — **user-managed** |
 | `~/.claude/statusline.sh` | Statusline script |
 | `~/.claude/hooks/subagent-model-router.sh` | Subagent model routing hook |
 | `~/.claude/hooks/pre-compact.sh` | Pre-compact instructions hook |
@@ -212,9 +296,9 @@ Every file modified by a bootstrap script is backed up first:
 
 Format: `<original-path>.bak.YYYYMMDD_HHMMSS`. To restore, copy the `.bak.*` file back over the original.
 
-Want a clean reinstall? `./bootstrap.sh --clean --yes` wipes `~/.claude` first.
+For a clean reinstall: `./bootstrap.sh --clean --yes` wipes `~/.claude` first.
 
-Install results are recorded in `~/.claude-bootstrap/logs/results.tsv` with status `OK`, `FAILED`, `SKIPPED`, or `DECLINED`.
+Install results land in `~/.claude-bootstrap/logs/results.tsv` with status `OK`, `FAILED`, `SKIPPED`, or `DECLINED`.
 
 ---
 
@@ -224,10 +308,10 @@ Install results are recorded in `~/.claude-bootstrap/logs/results.tsv` with stat
 - bash 4.0+
 - Internet access for downloads
 
-The bootstrapper installs missing deps automatically (Homebrew on macOS, apt-get/dnf/yum on Linux).
+The bootstrapper installs missing deps automatically (Homebrew on macOS; apt-get/dnf/yum on Linux).
 
 - **Hard deps:** `curl`, `git`, `python3`, `npm`
-- **Soft deps:** `jq`, `pipx`
+- **Soft deps:** `jq`, `pipx`, `uv` (for code-review-graph)
 
 ---
 
@@ -235,18 +319,28 @@ The bootstrapper installs missing deps automatically (Homebrew on macOS, apt-get
 
 **`[FAIL] CLAUDE.md` or `[FAIL] settings`** — these files are user-managed. Create them at `~/.claude/CLAUDE.md` and `~/.claude/settings.json`. The bootstrapper only verifies their existence; it does not install them.
 
-**`rtk gain` fails** — you may have the wrong `rtk` binary on your PATH (there's a name collision with reachingforthejack/rtk). Run `which rtk` to check.
+**`rtk gain` fails** — you may have the wrong `rtk` binary on your PATH (name collision with `reachingforthejack/rtk` Rust Type Kit). Run `which rtk` to check, then uninstall the wrong one (`cargo uninstall rtk` or `brew uninstall rtk`).
 
-**Component fails mid-bootstrap** — non-critical components don't abort the run. Check `~/.claude-bootstrap/logs/results.tsv` and the per-script logs in the same dir.
+**Component fails mid-bootstrap** — non-critical components don't abort the run. Check `~/.claude-bootstrap/logs/results.tsv` and the per-script logs in the same directory.
+
+**Skill missing `scripts/` or `reference/` after install** — fixed in the latest install_skills.sh. Re-run with `--force --skills-only <skill-id>`.
 
 ---
 
 ## Contributing
 
-Tests live in `tests/integration/`. Run them with:
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, testing, and how to add new components or skills.
+
+Quick reference:
 
 ```bash
-make test
+make install     # run bootstrap.sh interactively
+make test        # run the full test suite (~140 tests)
+make verify      # run verify_installation.sh
 ```
 
-The runner is zero-dep bash. ~140 tests cover every install script.
+---
+
+## License
+
+[MIT](LICENSE)

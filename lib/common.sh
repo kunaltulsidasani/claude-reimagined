@@ -108,11 +108,11 @@ ask_confirm() {
     fi
 
     local answer
-    printf "  Install %s? [y/N] " "$name"
+    printf "  Install %s? [Y/n] " "$name"
     read -r answer < /dev/tty || true
     case "${answer,,}" in
-        y|yes) return 0 ;;
-        *) return 1 ;;
+        n|no) return 1 ;;
+        *) return 0 ;;   # default = yes (empty input or any other answer)
     esac
 }
 
