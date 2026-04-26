@@ -75,7 +75,8 @@ require_command() {
 backup_file() {
     local path="$1"
     if [[ -e "$path" ]]; then
-        local backup="${path}.bak.$(date +%Y%m%d_%H%M%S)"
+        local backup
+        backup="${path}.bak.$(date +%Y%m%d_%H%M%S)"
         if is_dry_run; then
             log_dry "Would backup: ${path} → ${backup}"
         else

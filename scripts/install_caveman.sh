@@ -16,8 +16,11 @@ _caveman_installed() {
     local plugins_dir="${HOME}/.claude/plugins"
     local settings_file="${HOME}/.claude/settings.json"
 
-    if [[ -d "${plugins_dir}" ]] && ls "${plugins_dir}" 2>/dev/null | grep -qi "caveman"; then
-        return 0
+    if [[ -d "${plugins_dir}" ]]; then
+        local entry
+        for entry in "${plugins_dir}"/*[Cc][Aa][Vv][Ee][Mm][Aa][Nn]*; do
+            [[ -e "$entry" ]] && return 0
+        done
     fi
 
     if [[ -f "${settings_file}" ]] && grep -qi "caveman" "${settings_file}" 2>/dev/null; then
