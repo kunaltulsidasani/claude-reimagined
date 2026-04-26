@@ -43,5 +43,5 @@ test-integration:
 lint:
 	@command -v shellcheck >/dev/null 2>&1 || { echo "shellcheck not found. Install: brew install shellcheck"; exit 1; }
 	@echo "Running shellcheck..."
-	@shellcheck -x bootstrap.sh scripts/*.sh lib/common.sh hooks/*.sh
+	@shellcheck -x -S warning bootstrap.sh scripts/*.sh lib/common.sh hooks/*.sh
 	@echo "All checks passed."

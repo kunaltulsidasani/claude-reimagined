@@ -173,6 +173,11 @@ check_settings() {
 
 printf "\n${_BOLD}━━━ Installation Verification ━━━━━━━━━━━━━━━━━━━━━━━━━━━${_RESET}\n\n"
 
+if is_dry_run; then
+    log_info "Dry-run mode: skipping post-install verification (no files were created)"
+    exit 0
+fi
+
 check_claude_code
 check_rtk
 check_code_review_graph

@@ -95,7 +95,8 @@ if [ -f "Package.swift" ]; then
 fi
 
 # C# / .NET
-if ls ./*.csproj 2>/dev/null | grep -q .; then
+_csproj_glob=(./*.csproj)
+if [ -e "${_csproj_glob[0]}" ]; then
     PROJECT_TYPE="csharp/dotnet"
     TEST_CMD="dotnet test"
     BUILD_CMD="dotnet build"
