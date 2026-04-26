@@ -1,0 +1,54 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: ${{ matrix.os }} / bash ${{ matrix.bash }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        bash: [system]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install bash 4+ on macOS
+        if: runner.os == 'macOS'
+        run: |
+          brew install bash
+          echo "/opt/homebrew/bin" >> $GITHUB_PATH
+
+      - name: Show bash version
+        run: bash --version
+
+      - name: Run tests
+        run: make test
+
+      - name: Run dry-run install
+        run: ./bootstrap.sh --dry-run --yes --skip claude-code,rtk,context-mode,code-review-graph,caveman
+
+  lint:
+    name: shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Run shellcheck
+        run: make lint
