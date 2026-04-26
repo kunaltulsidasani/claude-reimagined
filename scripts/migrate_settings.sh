@@ -101,20 +101,25 @@ if [[ -f "${settings_json}" ]]; then
 fi
 
 # Build a JSON fragment from extracted keys/values and merge into settings.json
-# Pass keys/values via a temp JSON file to avoid whitespace-splitting on [*]
-_kv_tmp="$(mktemp)"
-python3 -c "import sys, json; print(json.dumps(dict(zip(sys.argv[1].split('\x00'), sys.argv[2].split('\x00')))))" \
-    "$(printf '%s\0' "${safe_keys[@]}" | head -c -1)" \
-    "$(printf '%s\0' "${safe_values[@]}" | head -c -1)" > "${_kv_tmp}"
+# Write keys/values to temp files (newline-separated) — portable on macOS + Linux
+_keys_tmp="$(mktemp)"
+_vals_tmp="$(mktemp)"
+printf '%s\n' "${safe_keys[@]+"${safe_keys[@]}"}"   > "${_keys_tmp}"
+printf '%s\n' "${safe_values[@]+"${safe_values[@]}"}" > "${_vals_tmp}"
 
-python3 - "${settings_json}" "${_kv_tmp}" <<'PYEOF'
+python3 - "${settings_json}" "${_keys_tmp}" "${_vals_tmp}" <<'PYEOF'
 import sys, json, os
 
 settings_file = sys.argv[1]
-kv_file = sys.argv[2]
+keys_file = sys.argv[2]
+vals_file = sys.argv[3]
 
-with open(kv_file) as f:
-    pairs = json.load(f)
+with open(keys_file) as f:
+    keys = [l.rstrip("\n") for l in f if l.strip()]
+with open(vals_file) as f:
+    values = [l.rstrip("\n") for l in f if l.strip()]
+
+pairs = dict(zip(keys, values))
 
 if os.path.exists(settings_file):
     with open(settings_file) as f:
@@ -128,7 +133,7 @@ with open(settings_file, "w") as f:
     json.dump(data, f, indent=2)
     f.write("\n")
 PYEOF
-rm -f "${_kv_tmp}"
+rm -f "${_keys_tmp}" "${_vals_tmp}"
 
 log_info "Merged ${#safe_keys[@]} key(s) into ${settings_json}"
 

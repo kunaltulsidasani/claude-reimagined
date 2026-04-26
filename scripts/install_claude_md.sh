@@ -21,6 +21,15 @@ if is_skipped "${COMPONENT_ID}"; then
     exit 0
 fi
 
+if [[ ! -f "${SRC_CLAUDE_MD}" || ! -f "${SRC_RTK_MD}" ]]; then
+    log_warn "Source files not found in configs/ — skipping"
+    log_warn "  Expected: ${SRC_CLAUDE_MD}"
+    log_warn "  Expected: ${SRC_RTK_MD}"
+    log_warn "These are created by 'rtk init -g'. Add them to configs/ to enable this installer."
+    record_result "${COMPONENT_ID}" "SKIPPED" "source files not found in configs/"
+    exit 0
+fi
+
 # Skip if both destinations exist and not --force
 if [[ -f "${DEST_CLAUDE_MD}" && -f "${DEST_RTK_MD}" ]]; then
     if ! is_force; then

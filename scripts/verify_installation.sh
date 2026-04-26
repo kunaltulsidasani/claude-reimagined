@@ -15,7 +15,7 @@ _skip=0
 _was_skipped_or_declined() {
     local component="$1"
     [[ -f "${RESULTS_FILE}" ]] || return 1
-    grep -qE "	${component}	(SKIPPED|DECLINED)	" "${RESULTS_FILE}" 2>/dev/null
+    grep -qE "	${component}[[:space:]]*	(SKIPPED|DECLINED)	" "${RESULTS_FILE}" 2>/dev/null
 }
 
 _print_row() {
@@ -84,16 +84,21 @@ check_code_review_graph() {
 check_context_mode() {
     local _status _detail
     local found=0
-    if check_command claude; then
-        claude mcp list 2>/dev/null | grep -qi "context-mode" && found=1
+    if ls "${HOME}/.claude/plugins/"*context-mode* >/dev/null 2>&1; then
+        found=1; _detail="${HOME}/.claude/plugins/ (plugin dir)"
+    fi
+    if [[ "$found" == "0" ]] && [[ -f "${HOME}/.claude/settings.json" ]]; then
+        grep -qi "context-mode" "${HOME}/.claude/settings.json" 2>/dev/null && found=1
+        [[ "$found" == "1" ]] && _detail="${HOME}/.claude/settings.json"
     fi
     if [[ "$found" == "0" ]] && [[ -f "${HOME}/.claude.json" ]]; then
-        grep -q "context-mode" "${HOME}/.claude.json" 2>/dev/null && found=1
+        grep -q '"context-mode"' "${HOME}/.claude.json" 2>/dev/null && found=1
+        [[ "$found" == "1" ]] && _detail="${HOME}/.claude.json"
     fi
     if [[ "$found" == "1" ]]; then
-        _status="ok"; _detail="registered in MCP / ~/.claude.json"
+        _status="ok"
     else
-        _status="fail"; _detail="context-mode not found in MCP list or ~/.claude.json"
+        _status="fail"; _detail="context-mode not found in plugins dir, settings.json, or ~/.claude.json"
     fi
     _check "context-mode" "context-mode"
 }

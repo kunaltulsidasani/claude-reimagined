@@ -7,7 +7,7 @@ source "$(dirname "$0")/../lib/common.sh"
 id="claude-code"
 name="Claude Code"
 description="Anthropic's official AI coding assistant CLI"
-changes="Installs claude CLI globally via npm, creates ~/.claude/ config directory"
+changes="Installs claude CLI via official install script, creates ~/.claude/ config directory"
 
 if is_skipped "$id"; then
     record_result "$id" "SKIPPED" "via --skip"
@@ -22,20 +22,23 @@ fi
 
 ask_confirm "$id" "$name" "$description" "$changes" || { record_result "$id" "DECLINED"; exit 0; }
 
-if ! check_command npm; then
-    log_error "npm is required but not found."
-    log_error "  macOS: brew install node"
-    log_error "  Linux: sudo apt install nodejs npm  OR  sudo dnf install nodejs npm"
-    record_result "$id" "FAILED" "npm not found"
+if ! check_command curl; then
+    log_error "curl is required but not found."
+    log_error "  macOS: brew install curl"
+    log_error "  Linux: sudo apt install curl  OR  sudo dnf install curl"
+    record_result "$id" "FAILED" "curl not found"
     exit 1
 fi
 
 if is_dry_run; then
-    log_dry "Would run: npm install -g @anthropic-ai/claude-code"
+    log_dry "Would run: curl -fsSL https://claude.ai/install.sh | bash"
     exit 0
 fi
 
-npm install -g @anthropic-ai/claude-code
+curl -fsSL https://claude.ai/install.sh | bash
+
+# Reload PATH in case install added a new bin dir
+export PATH="${HOME}/.local/bin:${HOME}/.cargo/bin:${PATH}"
 
 if ! check_command claude; then
     log_error "Claude Code installation verification failed"

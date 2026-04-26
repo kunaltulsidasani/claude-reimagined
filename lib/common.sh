@@ -34,7 +34,7 @@ is_skipped() {
     local component="$1"
     local s
     IFS=',' read -ra _skip_list <<< "${BOOTSTRAP_SKIP:-}"
-    for s in "${_skip_list[@]}"; do
+    for s in "${_skip_list[@]+"${_skip_list[@]}"}"; do
         [[ "${s// /}" == "$component" ]] && return 0
     done
     return 1

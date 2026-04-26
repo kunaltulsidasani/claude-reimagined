@@ -42,6 +42,7 @@ if ! ask_confirm "${COMPONENT_ID}" "${COMPONENT_NAME}" "${COMPONENT_DESC}" "${CO
     exit 0
 fi
 
+mkdir -p "${HOME}/.claude"
 dest="${HOME}/.claude/statusline.sh"
 
 if [[ "${source_path}" != "${dest}" ]]; then
@@ -68,7 +69,6 @@ if check_command "shellcheck" && ! is_dry_run; then
 fi
 
 settings_json="${HOME}/.claude/settings.json"
-mkdir -p "${HOME}/.claude"
 
 if ! is_dry_run; then
     if [[ -f "${settings_json}" ]]; then

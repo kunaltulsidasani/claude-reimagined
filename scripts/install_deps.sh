@@ -7,7 +7,7 @@ source "${SCRIPT_DIR}/../lib/common.sh"
 
 COMPONENT_ID="deps"
 COMPONENT_NAME="System Dependencies"
-COMPONENT_DESC="Installs required system packages: curl, git, python3, node/npm, jq, pipx"
+COMPONENT_DESC="Installs required system packages: curl, git, python3, jq"
 COMPONENT_CHANGES="May install packages via Homebrew (macOS) or apt-get/dnf (Linux)"
 
 if is_skipped "${COMPONENT_ID}"; then
@@ -32,9 +32,8 @@ _need_soft() {
 _need_hard curl
 _need_hard git
 _need_hard python3
-_need_hard npm
 _need_soft jq
-_need_soft pipx
+_need_soft uv
 
 ALL_MISSING=("${MISSING_HARD[@]+"${MISSING_HARD[@]}"}" "${MISSING_SOFT[@]+"${MISSING_SOFT[@]}"}")
 
@@ -72,9 +71,8 @@ if [[ "${OS}" == "macos" ]]; then
     _brew_pkgs=()
     for dep in "${ALL_MISSING[@]}"; do
         case "${dep}" in
-            npm)     _brew_pkgs+=(node) ;;
             python3) _brew_pkgs+=(python3) ;;
-            pipx)    _brew_pkgs+=(pipx) ;;
+            uv)      _brew_pkgs+=(uv) ;;
             *)       _brew_pkgs+=("${dep}") ;;
         esac
     done
@@ -94,10 +92,9 @@ elif [[ "${OS}" == "linux" ]]; then
         _apt_pkgs=()
         for dep in "${ALL_MISSING[@]}"; do
             case "${dep}" in
-                npm)  _apt_pkgs+=(nodejs npm) ;;
-                jq)   _apt_pkgs+=(jq) ;;
-                pipx) _apt_pkgs+=(pipx) ;;
-                *)    _apt_pkgs+=("${dep}") ;;
+                jq) _apt_pkgs+=(jq) ;;
+                uv) log_info "Install uv manually: curl -LsSf https://astral.sh/uv/install.sh | sh" ;;
+                *)  _apt_pkgs+=("${dep}") ;;
             esac
         done
         IFS=' ' read -ra _apt_pkgs <<< "$(printf '%s\n' "${_apt_pkgs[@]}" | sort -u | tr '\n' ' ')"
@@ -113,10 +110,9 @@ elif [[ "${OS}" == "linux" ]]; then
         _dnf_pkgs=()
         for dep in "${ALL_MISSING[@]}"; do
             case "${dep}" in
-                npm)  _dnf_pkgs+=(nodejs npm) ;;
-                jq)   _dnf_pkgs+=(jq) ;;
-                pipx) _dnf_pkgs+=(python3-pipx) ;;
-                *)    _dnf_pkgs+=("${dep}") ;;
+                jq) _dnf_pkgs+=(jq) ;;
+                uv) log_info "Install uv manually: curl -LsSf https://astral.sh/uv/install.sh | sh" ;;
+                *)  _dnf_pkgs+=("${dep}") ;;
             esac
         done
         IFS=' ' read -ra _dnf_pkgs <<< "$(printf '%s\n' "${_dnf_pkgs[@]}" | sort -u | tr '\n' ' ')"
@@ -131,10 +127,9 @@ elif [[ "${OS}" == "linux" ]]; then
         _yum_pkgs=()
         for dep in "${ALL_MISSING[@]}"; do
             case "${dep}" in
-                npm)  _yum_pkgs+=(nodejs npm) ;;
-                jq)   _yum_pkgs+=(jq) ;;
-                pipx) _yum_pkgs+=(python3-pip) ;;  # install pip, then pipx below
-                *)    _yum_pkgs+=("${dep}") ;;
+                jq) _yum_pkgs+=(jq) ;;
+                uv) log_info "Install uv manually: curl -LsSf https://astral.sh/uv/install.sh | sh" ;;
+                *)  _yum_pkgs+=("${dep}") ;;
             esac
         done
         IFS=' ' read -ra _yum_pkgs <<< "$(printf '%s\n' "${_yum_pkgs[@]}" | sort -u | tr '\n' ' ')"
@@ -143,10 +138,6 @@ elif [[ "${OS}" == "linux" ]]; then
             log_dry "Would run: yum install -y ${_yum_pkgs[*]}"
         else
             sudo yum install -y "${_yum_pkgs[@]}"
-            # pipx not in yum — install via pip
-            if printf '%s\n' "${ALL_MISSING[@]}" | grep -qx pipx; then
-                pip3 install --user pipx || true
-            fi
         fi
 
     else

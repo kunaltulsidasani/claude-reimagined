@@ -52,7 +52,7 @@ if is_dry_run; then
     else
         log_dry "Would run: curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | sh"
     fi
-    log_dry "Would run: rtk init -g --auto-patch"
+    log_dry "Would run: rtk init -g"
     exit 0
 fi
 
@@ -78,11 +78,14 @@ if [[ -f "${HOME}/.cargo/env" ]]; then
 fi
 export PATH="${HOME}/.local/bin:${HOME}/.cargo/bin:${PATH}"
 
-if ! rtk init -g --auto-patch; then
-    log_error "rtk init -g --auto-patch failed."
+if ! rtk init -g; then
+    log_error "rtk init -g failed."
     record_result "$id" "FAILED" "rtk init failed"
     exit 1
 fi
+
+log_info "RTK init configuration:"
+rtk init --show 2>/dev/null || true
 
 if ! check_command rtk; then
     log_error "rtk command not found after installation."
