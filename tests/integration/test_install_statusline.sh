@@ -75,7 +75,7 @@ python3 -c "import json; json.load(open('${settings}'))" 2>/dev/null \
 
 assert_contains "OK recorded" "OK" "$(cat "${h}/logs/results.tsv")"
 
-# ── statusLine value is the actual dest path ──────────────────────────────────
+# ── statusLine value is a command-object pointing at dest path ───────────────
 
 suite "install_statusline — statusLine value matches dest path"
 
@@ -84,8 +84,11 @@ HOME="$h" BOOTSTRAP_SKIP="" BOOTSTRAP_YES=1 \
   BOOTSTRAP_LOG_DIR="${h}/logs" BOOTSTRAP_DRY_RUN=0 BOOTSTRAP_FORCE=0 \
   bash "$SCRIPT" >/dev/null 2>&1
 
-statusline_val="$(python3 -c "import json; d=json.load(open('${h}/.claude/settings.json')); print(d.get('statusLine',''))" 2>/dev/null)"
-assert_eq "statusLine path value" "${h}/.claude/statusline.sh" "$statusline_val"
+statusline_type="$(python3 -c "import json; d=json.load(open('${h}/.claude/settings.json')); print(d.get('statusLine',{}).get('type',''))" 2>/dev/null)"
+assert_eq "statusLine.type is 'command'" "command" "$statusline_type"
+
+statusline_cmd="$(python3 -c "import json; d=json.load(open('${h}/.claude/settings.json')); print(d.get('statusLine',{}).get('command',''))" 2>/dev/null)"
+assert_eq "statusLine.command bash-quotes dest path" "bash \"${h}/.claude/statusline.sh\"" "$statusline_cmd"
 
 # ── Backup on re-run with existing settings.json ─────────────────────────────
 

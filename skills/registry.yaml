@@ -34,7 +34,7 @@ skills:
   - id: rust-pro
     category: languages
     repo: Mindrally/skills
-    path: rust-pro
+    path: rust
     description: Rust — ownership model, lifetimes, async/tokio
 
   - id: java-architect
@@ -88,7 +88,7 @@ skills:
   - id: react
     category: languages
     repo: Jeffallan/claude-skills
-    path: skills/react
+    path: skills/react-expert
     description: React — hooks, state management, performance patterns
 
   - id: vue-expert
@@ -149,20 +149,14 @@ skills:
 
   - id: redis-pro
     category: databases
-    repo: Jeffallan/claude-skills
-    path: skills/redis-pro
+    repo: Mindrally/skills
+    path: redis-best-practices
     description: Redis — data structures, pub/sub, clustering, Lua
-
-  - id: dynamodb-pro
-    category: databases
-    repo: Jeffallan/claude-skills
-    path: skills/dynamodb-pro
-    description: DynamoDB — single-table design, GSI/LSI, streams
 
   - id: mongodb-pro
     category: databases
-    repo: anthropics/skills
-    path: skills/mongodb
+    repo: Mindrally/skills
+    path: mongodb-development
     description: MongoDB — schema design, aggregation pipeline, Atlas
 
   - id: database-designer
@@ -176,31 +170,31 @@ skills:
   - id: aws-solution-architect
     category: infrastructure
     repo: Jeffallan/claude-skills
-    path: skills/aws-solution-architect
+    path: skills/cloud-architect
     description: AWS — well-architected, CDK, cost optimization, multi-region
 
   - id: terraform
     category: infrastructure
     repo: Jeffallan/claude-skills
-    path: skills/terraform
+    path: skills/terraform-engineer
     description: Terraform — modules, state management, provider patterns
 
   - id: kubernetes-ops
     category: infrastructure
     repo: seokheejang/claude-ops-skills
-    path: skills/kubernetes-ops
+    path: skills/k8s-ops
     description: Kubernetes — deployments, RBAC, HPA, troubleshooting runbooks
 
   - id: docker
     category: infrastructure
-    repo: Jeffallan/claude-skills
-    path: skills/docker
+    repo: Mindrally/skills
+    path: docker
     description: Docker — multi-stage builds, Compose, security hardening
 
   - id: ci-cd
     category: infrastructure
-    repo: levnikolaevich/claude-code-skills
-    path: skills/ci-cd
+    repo: Mindrally/skills
+    path: ci-cd-best-practices
     description: CI/CD — GitHub Actions, GitLab CI, pipeline design
 
   # ── Testing ────────────────────────────────────────────────────────────────
@@ -208,26 +202,14 @@ skills:
   - id: tdd
     category: testing
     repo: obra/superpowers
-    path: skills/tdd
+    path: skills/test-driven-development
     description: Test-Driven Development — red/green/refactor cycle
-
-  - id: bdd
-    category: testing
-    repo: tomazwang/agent-toolkit
-    path: skills/bdd
-    description: BDD — Gherkin, Cucumber, spec-first workflow
 
   - id: unit-tests
     category: testing
     repo: clear-solutions/unit-tests-skills
-    path: .
+    path: skills/generate-tests
     description: Battle-tested unit test generation principles across all languages
-
-  - id: test-automation
-    category: testing
-    repo: LambdaTest/agent-skills
-    path: skills/test-automation
-    description: Test automation — playbooks, advanced patterns, cross-browser
 
   # ── API / Architecture ─────────────────────────────────────────────────────
 
@@ -243,18 +225,6 @@ skills:
     path: .
     description: OpenAPI spec generation, reverse-engineer from code, PDA docs
 
-  - id: api-security
-    category: api
-    repo: nvsecurity/nightvision-skills
-    path: skills/api-security
-    description: API security — DAST, OpenAPI extraction, vuln triage, CI integration
-
-  - id: system-design
-    category: api
-    repo: alirezarezvani/claude-skills
-    path: engineering/system-design
-    description: System design — scalability, distributed patterns, trade-off analysis
-
   # ── Engineering Practices ──────────────────────────────────────────────────
 
   - id: code-reviewer
@@ -266,26 +236,20 @@ skills:
   - id: security-review
     category: engineering
     repo: Jeffallan/claude-skills
-    path: skills/security-review
+    path: skills/security-reviewer
     description: Security review — OWASP, threat modeling, dependency scanning
 
   - id: debugging
     category: engineering
-    repo: karanb192/awesome-claude-skills
-    path: skills/debugging
+    repo: obra/superpowers
+    path: skills/systematic-debugging
     description: Systematic debugging — root cause analysis, observability
 
   - id: git-workflow
     category: engineering
-    repo: karanb192/awesome-claude-skills
-    path: skills/git-workflow
+    repo: Mindrally/skills
+    path: git-workflow
     description: Git — branching strategies, conventional commits, rebase vs merge
-
-  - id: refactoring
-    category: engineering
-    repo: alirezarezvani/claude-skills
-    path: engineering/refactoring
-    description: Refactoring — safe transforms, strangler fig, tech-debt reduction
 
   # ── Planning / Process ─────────────────────────────────────────────────────
 
@@ -298,5 +262,5 @@ skills:
   - id: architect-role
     category: process
     repo: aj-geddes/claude-code-bmad-skills
-    path: skills/architect
+    path: bmad-skills/system-architect
     description: BMAD architect role — ADRs, tech decisions, stakeholder communication

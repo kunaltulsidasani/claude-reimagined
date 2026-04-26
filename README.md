@@ -31,7 +31,7 @@ Bootstrap system for Claude Code and its plugin ecosystem. Single command instal
 | pre-compact | `PreCompact` hook | injects project-aware instructions into Claude's compaction summarizer so mid-task state survives context resets | `--skip pre-compact` | `~/.claude/hooks/pre-compact.sh` |
 | claude-md | global `CLAUDE.md` | installs skill router instructions and project conventions Claude reads at session start | `--skip claude-md` | `~/.claude/CLAUDE.md` |
 | settings (migrate) | reads legacy `settings.sh` | carries forward any existing Claude settings rather than clobbering them | `--skip settings` | no-op if no `settings.sh` found |
-| skills | 50+ skill dirs in `~/.claude/skills/` | domain-specific prompting libraries Claude picks up automatically via the skill router | `--skip skills` | `~/.claude/skills/` |
+| skills | 40+ skill dirs in `~/.claude/skills/` | domain-specific prompting libraries Claude picks up automatically via the skill router | `--skip skills` | `~/.claude/skills/` |
 
 
 ## Hooks
@@ -89,7 +89,7 @@ Hooks registered in settings.json:
 
 ## Skills Library
 
-50+ curated skills installed from community repos via sparse clone. Use `--skills-only <ids>` to install a subset.
+40+ curated skills installed from community repos via sparse clone. Use `--skills-only <ids>` to install a subset.
 
 | Skill | Category | Description |
 |-------|----------|-------------|

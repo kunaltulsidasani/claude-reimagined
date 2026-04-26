@@ -88,7 +88,10 @@ if os.path.exists(settings_file):
 else:
     data = {}
 
-data["statusLine"] = statusline_path
+data["statusLine"] = {
+    "type": "command",
+    "command": f'bash "{statusline_path}"',
+}
 
 with open(settings_file, "w") as f:
     json.dump(data, f, indent=2)
@@ -97,16 +100,17 @@ PYEOF
         log_info "Updated ${settings_json} with statusLine entry"
     elif check_command "jq"; then
         tmp=$(mktemp)
+        cmd_value="bash \"${HOME}/.claude/statusline.sh\""
         if [[ -f "${settings_json}" ]]; then
-            jq --arg v "${HOME}/.claude/statusline.sh" '. + {statusLine: $v}' "${settings_json}" > "${tmp}"
+            jq --arg cmd "${cmd_value}" '. + {statusLine: {type: "command", command: $cmd}}' "${settings_json}" > "${tmp}"
         else
-            jq -n --arg v "${HOME}/.claude/statusline.sh" '{statusLine: $v}' > "${tmp}"
+            jq -n --arg cmd "${cmd_value}" '{statusLine: {type: "command", command: $cmd}}' > "${tmp}"
         fi
         mv "${tmp}" "${settings_json}"
         log_info "Updated ${settings_json} with statusLine entry (via jq)"
     else
         log_warn "Neither python3 nor jq found. Add manually to ${settings_json}:"
-        log_warn '  "statusLine": "'"${HOME}/.claude/statusline.sh"'"'
+        log_warn '  "statusLine": {"type": "command", "command": "bash \"'"${HOME}/.claude/statusline.sh"'\""}'
     fi
 else
     log_dry "Would update ${settings_json} with statusLine: ${HOME}/.claude/statusline.sh"

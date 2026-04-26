@@ -7,7 +7,7 @@ source "${SCRIPT_DIR}/../lib/common.sh"
 
 COMPONENT_ID="skills"
 COMPONENT_NAME="Claude Code Skills"
-COMPONENT_DESC="Installs 46 curated skills (languages, databases, infra, testing, API, engineering, process) into ~/.claude/skills/"
+COMPONENT_DESC="Installs 40 curated skills (languages, databases, infra, testing, API, engineering, process) into ~/.claude/skills/"
 COMPONENT_CHANGES="Creates/populates ~/.claude/skills/<skill-id>/ directories by sparse-cloning source GitHub repos"
 
 REGISTRY="${SCRIPT_DIR}/../skills/registry.yaml"
