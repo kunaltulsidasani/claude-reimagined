@@ -66,8 +66,8 @@ fi
 export PATH="${HOME}/.local/bin:${HOME}/.cargo/bin:${PATH}"
 
 # shellcheck disable=SC2086
-if ! rtk init -g ; then
-    log_error "rtk init -g failed."
+if ! rtk init -g --auto-patch; then
+    log_error "rtk init -g --auto-patch failed."
     record_result "$id" "FAILED" "rtk init failed"
     exit 1
 fi
